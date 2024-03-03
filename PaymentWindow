@@ -1,0 +1,93 @@
+def calculate_bill(num_tickets):            #Total_Bill
+    ticket_price = 500                      #Price of ticket
+    totalbill = ticket_price * num_tickets
+    return totalbill
+    
+    def open_payment_window():
+        global payment_amount_entry,card_holder_entry, card_number_entry, expiry_date_entry, cvv_entry, payment_amount_window
+        payment_amount_window = tk.Toplevel()                              #Payment_window
+        payment_amount_window.title("Enter Payment Details")
+        payment_amount_window.geometry("400x300+500+200")
+
+        payment_amount_label = tk.Label(payment_amount_window, text="Payment Amount:", font=("Arial", 12))      #payment_labrl
+        payment_amount_label.grid(row=0, column=0, padx=10, pady=10)
+        payment_amount_entry = tk.Entry(payment_amount_window, font=("Arial", 12))                              #payment_entry
+        payment_amount_entry.grid(row=0, column=1, padx=10, pady=10)
+
+        card_number_label = tk.Label(payment_amount_window, text="Card Number:", font=("Arial", 12))           #card_number_labrl
+        card_number_label.grid(row=2, column=0, padx=10, pady=10)
+        card_number_entry = tk.Entry(payment_amount_window, font=("Arial", 12))                                 #card_number_entry
+        card_number_entry.grid(row=2, column=1, padx=10, pady=10)
+
+        expiry_date_label = tk.Label(payment_amount_window, text="Expiry Date (MM/YY):", font=("Arial", 12))    #expiry_date_labrl
+        expiry_date_label.grid(row=3, column=0, padx=10, pady=10)
+        expiry_date_entry = tk.Entry(payment_amount_window, font=("Arial", 12))                                #expiry_date_entry
+        expiry_date_entry.grid(row=3, column=1, padx=10, pady=10)
+
+        cvv_label = tk.Label(payment_amount_window, text="CVV:", font=("Arial", 12))                          #cvv_labrl
+        cvv_label.grid(row=4, column=0, padx=10, pady=10)
+        cvv_entry = tk.Entry(payment_amount_window, font=("Arial", 12))                                        #cvv_entry
+        cvv_entry.grid(row=4, column=1, padx=10, pady=10)
+
+        card_holder_label = tk.Label(payment_amount_window, text="Card Holder Name:", font=("Arial", 12))      #cardholder_label
+        card_holder_label.grid(row=1, column=0, padx=10, pady=10)
+        card_holder_entry = tk.Entry(payment_amount_window, font=("Arial", 12))                                #cardholder_name                          
+        card_holder_entry.grid(row=1, column=1, padx=10, pady=10)
+
+        save_button = tk.Button(payment_amount_window, text="Save", command=save_payment)       
+        save_button.grid(row=5, column=0, columnspan=2, pady=10)
+
+    def save_payment():    #exception_handlings_of_payment
+        global payment_amount,card_holder_name, card_number, expiry_date, cvv
+        payment_amount = payment_amount_entry.get()
+        card_holder_name = card_holder_entry.get()
+        card_number = card_number_entry.get()
+        expiry_date = expiry_date_entry.get()
+        cvv = cvv_entry.get()
+        
+        # Validate inputs
+        try:
+            payment_amount = float(payment_amount)
+            if payment_amount <= 0:
+                raise ValueError("Payment amount must be a positive number")
+        except ValueError:
+            messagebox.showerror("Error", "Invalid payment amount")
+            return
+
+        if not card_holder_name.isalpha():
+            try:
+                raise ValueError("Name must contain only alphabetic characters")
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+            return
+
+        if not card_number.isdigit() or len(card_number) != 16:
+            try:
+                raise ValueError("Invalid card number. It should be a 16-digit number.")
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+            return
+
+        if len(expiry_date) != 5 or expiry_date[2] != '/':
+            try:
+                raise ValueError("Invalid expiry date format. Use MM/YY format.")
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+            return
+
+        if not cvv.isdigit() or len(cvv) != 3:
+            try:
+                raise ValueError("Invalid CVV. It should be a 3-digit number.")
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
+            return
+
+
+        # Insert payment details into a new table
+        c.execute('''CREATE TABLE IF NOT EXISTS payments (
+                     payment_amount REAL,card_holder_name TEXT, card_number TEXT, expiry_date TEXT, cvv TEXT)''')
+        c.execute("INSERT INTO payments (payment_amount,card_holder_name, card_number, expiry_date, cvv) VALUES (?,?, ?, ?, ?)",
+                  (payment_amount,card_holder_name, card_number, expiry_date, cvv))
+        conn.commit()
+
+        payment_amount_window.destroy()
