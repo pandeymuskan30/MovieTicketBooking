@@ -1,0 +1,14 @@
+def show_billing_window(firstname, lastname, age, gender, show, time, date, num_tickets, totalbill, selected_seats):
+        billing_window = tk.Tk()
+        billing_window.title("TICKET DETAILS")
+        billing_window.geometry("800x500+350+150")
+        billing_window.config(bg="pink")
+
+        details_label = tk.Label(billing_window, text="Congratulation you have successful booked your ticket", font=("Arial", 20))
+        details_label.pack(pady=10)
+
+        detail_text = f"Name: {firstname} {lastname}\nAge: {age}\nGender: {gender}\nShow: {show}\nTime: {time}\nDate: {date}\nNumber of Tickets: {num_tickets}\nTotal Bill: Rs.{totalbill}\nSelected Seats: {', '.join(map(str, selected_seats))}"
+        detail_label = tk.Label(billing_window, text=detail_text, justify="left", font=("Arial", 14))
+        detail_label.pack(pady=10)
+
+        billing_window.mainloop()
